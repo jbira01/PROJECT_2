@@ -16,7 +16,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CARMOTORS - Nos Véhicules</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/vehicule.css" rel="stylesheet">
+    <link href="assets/css/vehicules.css" rel="stylesheet">
 </head>
 
 </html>
@@ -63,19 +63,19 @@
     <!-- Vehicle Grid -->
     <div class="row" id="vehicleGrid">
         <?php
-        $stmt = $pdo->query("SELECT * FROM vehicles WHERE available = 1");
+        $stmt = $pdo->query("SELECT * FROM vehicules WHERE availability = 1");
         while ($vehicle = $stmt->fetch(PDO::FETCH_ASSOC)) {
             echo '<div class="col-md-4 mb-4 vehicle-item" data-category="' . $vehicle['category'] . '">
                     <div class="card h-100">
-                        <img src="' . htmlspecialchars($vehicle['image']) . '" class="card-img-top" alt="' . htmlspecialchars($vehicle['name']) . '">
+                        <img src="img/' . htmlspecialchars($vehicle['image_url']) . '" class="card-img-top" alt="' . htmlspecialchars($vehicle['model']) . '">
                         <div class="card-body">
-                            <h5 class="card-title">' . htmlspecialchars($vehicle['name']) . '</h5>
+                            <h5 class="card-title">' . htmlspecialchars($vehicle['model']) . '</h5>
                             <p class="card-text">Catégorie : ' . htmlspecialchars($vehicle['category']) . '</p>
                             <p class="card-text">À partir de <strong>' . $vehicle['price_per_day'] . '€/jour</strong></p>
                             <a href="reservation.php?id=' . $vehicle['id'] . '" class="btn btn-dark">Réserver</a>
                         </div>
                     </div>
-                  </div>';
+                </div>';
         }
         ?>
     </div>
