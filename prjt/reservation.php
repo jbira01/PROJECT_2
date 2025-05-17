@@ -1,4 +1,12 @@
 <?php
+session_start();
+
+// Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
+}
+
 // Connexion à la BDD
 $host = 'localhost';
 $dbname = 'carmotors';
@@ -12,12 +20,12 @@ try {
     die('Erreur de connexion : ' . $e->getMessage());
 }
 
-// Initialisation des variables
+// Initialisation
 $message = '';
 $errors = [];
 
+// Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupération et nettoyage des données
     $pickupLocation = $_POST['pickupLocation'] ?? '';
     $startDate = $_POST['startDate'] ?? '';
     $rentalDuration = (int)($_POST['rentalDuration'] ?? 0);
@@ -25,15 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
     $phone = trim($_POST['phone'] ?? '');
 
-    // Validation simple
+    // Validation
     if (!$pickupLocation) $errors[] = "Le lieu de retrait est obligatoire.";
     if (!$startDate) $errors[] = "La date de début est obligatoire.";
     if ($rentalDuration <= 0) $errors[] = "La durée de location est obligatoire.";
     if ($vehiculeId <= 0) $errors[] = "Vous devez sélectionner un véhicule.";
     if (!$email) $errors[] = "Email invalide.";
     if (!$phone) $errors[] = "Le téléphone est obligatoire.";
-    
-    // Vérifier que la date n'est pas dans le passé
+
+    // Date future
     if ($startDate && strtotime($startDate) < strtotime(date('Y-m-d'))) {
         $errors[] = "La date de début ne peut pas être dans le passé.";
     }
@@ -44,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vehicule = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$vehicule) $errors[] = "Véhicule sélectionné invalide.";
 
-    // Si pas d'erreur, insertion en base
+    // Insertion en base
     if (empty($errors)) {
         $stmt = $pdo->prepare("INSERT INTO reservations 
             (pickup_location, start_date, rental_duration, vehicule_id, email, phone) 
@@ -60,17 +68,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($success) {
             $message = "Réservation confirmée avec succès !";
-            $_POST = []; // Reset post data
+            $_POST = [];
         } else {
             $errors[] = "Erreur lors de l'enregistrement de la réservation.";
         }
     }
 }
 
-// Récupérer les véhicules pour affichage dynamique
+// Récupérer les véhicules
 $stmt = $pdo->query("SELECT * FROM vehicules");
 $vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -92,6 +101,7 @@ $vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <li class="nav-item"><a class="nav-link" href="vehicules.php">Nos Véhicules</a></li>
                 <li class="nav-item"><a class="nav-link active" href="reservation.php">Réservation</a></li>
                 <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="logout.php">Déconnexion</a></li>
             </ul>
         </div>
     </div>
@@ -119,39 +129,48 @@ $vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </ul>
                         </div>
                     <?php endif; ?>
-                    <form id="reservationForm" method="post" action="">
+
+                    <!-- Formulaire -->
+                    <form method="post" action="">
+                        <!-- Lieu de retrait -->
                         <div class="mb-3">
-                            <label for="pickupLocation" class="form-label">Lieu de Retrait</label>
-                            <select id="pickupLocation" name="pickupLocation" class="form-select" required>
+                            <label class="form-label">Lieu de Retrait</label>
+                            <select name="pickupLocation" class="form-select" required>
                                 <option value="">Sélectionnez un lieu</option>
-                                <option value="paris" <?= (($_POST['pickupLocation'] ?? '') === 'paris') ? 'selected' : '' ?>>Paris</option>
-                                <option value="lyon" <?= (($_POST['pickupLocation'] ?? '') === 'lyon') ? 'selected' : '' ?>>Lyon</option>
-                                <option value="marseille" <?= (($_POST['pickupLocation'] ?? '') === 'marseille') ? 'selected' : '' ?>>Marseille</option>
-                                <option value="nice" <?= (($_POST['pickupLocation'] ?? '') === 'nice') ? 'selected' : '' ?>>Nice</option>
+                                <?php
+                                $villes = ['paris', 'lyon', 'marseille', 'nice'];
+                                foreach ($villes as $ville) {
+                                    $selected = ($_POST['pickupLocation'] ?? '') === $ville ? 'selected' : '';
+                                    echo "<option value=\"$ville\" $selected>" . ucfirst($ville) . "</option>";
+                                }
+                                ?>
                             </select>
                         </div>
 
+                        <!-- Date & Durée -->
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="form-label">Date de Début</label>
-                                <input type="date" id="startDate" name="startDate" class="form-control" 
-                                        value="<?= htmlspecialchars($_POST['startDate'] ?? '') ?>" 
-                                        min="<?= date('Y-m-d') ?>" required>
+                                <input type="date" name="startDate" class="form-control" value="<?= htmlspecialchars($_POST['startDate'] ?? '') ?>" min="<?= date('Y-m-d') ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Durée</label>
-                                <select id="rentalDuration" name="rentalDuration" class="form-select" required>
+                                <select name="rentalDuration" id="rentalDuration" class="form-select" required>
                                     <option value="">Durée</option>
-                                    <option value="1" <?= (($_POST['rentalDuration'] ?? '') === '1') ? 'selected' : '' ?>>1 jour</option>
-                                    <option value="3" <?= (($_POST['rentalDuration'] ?? '') === '3') ? 'selected' : '' ?>>3 jours</option>
-                                    <option value="7" <?= (($_POST['rentalDuration'] ?? '') === '7') ? 'selected' : '' ?>>1 semaine</option>
-                                    <option value="14" <?= (($_POST['rentalDuration'] ?? '') === '14') ? 'selected' : '' ?>>2 semaines</option>
+                                    <?php
+                                    $durees = [1 => '1 jour', 3 => '3 jours', 7 => '1 semaine', 14 => '2 semaines'];
+                                    foreach ($durees as $val => $label) {
+                                        $selected = ($_POST['rentalDuration'] ?? '') == $val ? 'selected' : '';
+                                        echo "<option value=\"$val\" $selected>$label</option>";
+                                    }
+                                    ?>
                                 </select>
                             </div>
                         </div>
 
+                        <!-- Véhicules -->
                         <h3 class="mb-3">Sélectionnez votre véhicule</h3>
-                        <div class="row g-3 mb-4" id="vehicleSelection">
+                        <div class="row g-3 mb-4">
                             <?php foreach ($vehicules as $v): ?>
                                 <div class="col-md-4">
                                     <div class="card">
@@ -159,15 +178,14 @@ $vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <div class="card-body">
                                             <h5 class="card-title"><?= htmlspecialchars($v['make'] . ' ' . $v['model']) ?></h5>
                                             <p class="card-text"><?= htmlspecialchars($v['price_per_day']) ?> € / jour</p>
-                                            <input type="radio" name="vehicle" value="<?= htmlspecialchars($v['id']) ?>" 
-                                                class="vehicle-radio" 
-                                                <?= (($_POST['vehicle'] ?? '') == $v['id']) ? 'checked' : '' ?> required>
+                                            <input type="radio" name="vehicle" value="<?= $v['id'] ?>" class="vehicle-radio" <?= ($_POST['vehicle'] ?? '') == $v['id'] ? 'checked' : '' ?> required>
                                         </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
 
+                        <!-- Prix -->
                         <div class="card bg-light mb-3">
                             <div class="card-body">
                                 <h4 class="card-title">Récapitulatif du Prix</h4>
@@ -187,14 +205,15 @@ $vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
 
+                        <!-- Coordonnées -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required placeholder="Votre email">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="phone" class="form-label">Téléphone</label>
-                                <input type="tel" id="phone" name="phone" class="form-control" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" required placeholder="Votre numéro de téléphone">
+                                <label class="form-label">Téléphone</label>
+                                <input type="tel" name="phone" class="form-control" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>" required>
                             </div>
                         </div>
 
@@ -210,50 +229,32 @@ $vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <p class="mb-0">&copy; 2024 CARMOTORS - Tous droits réservés.</p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// JS pour mettre à jour le récapitulatif du prix en live
+// Prix dynamique JS
 const vehicules = <?= json_encode($vehicules) ?>;
-const vehicleRadios = document.querySelectorAll('.vehicle-radio');
-const rentalDurationSelect = document.getElementById('rentalDuration');
-const selectedVehiclePrice = document.getElementById('selectedVehiclePrice');
-const rentalDurationDisplay = document.getElementById('rentalDurationDisplay');
-const totalPrice = document.getElementById('totalPrice');
+const radios = document.querySelectorAll('.vehicle-radio');
+const durationSelect = document.getElementById('rentalDuration');
+const priceDisplay = document.getElementById('selectedVehiclePrice');
+const durationDisplay = document.getElementById('rentalDurationDisplay');
+const totalDisplay = document.getElementById('totalPrice');
 
 function updatePrice() {
-    const selectedVehicle = [...document.querySelectorAll('input[name="vehicle"]')].find(r => r.checked);
-    const duration = parseInt(rentalDurationSelect.value) || 0;
-
-    if (!selectedVehicle || !duration) {
-        selectedVehiclePrice.textContent = '-';
-        rentalDurationDisplay.textContent = '-';
-        totalPrice.textContent = '-';
+    const selectedRadio = document.querySelector('input[name="vehicle"]:checked');
+    const duration = parseInt(durationSelect.value) || 0;
+    if (!selectedRadio || !duration) {
+        priceDisplay.textContent = durationDisplay.textContent = totalDisplay.textContent = '-';
         return;
     }
-
-    const vehicule = vehicules.find(v => v.id == selectedVehicle.value);
-    if (!vehicule) return;
-
-    selectedVehiclePrice.textContent = vehicule.price_per_day + ' € / jour';
-    rentalDurationDisplay.textContent = duration + (duration === 1 ? ' jour' : ' jours');
-    totalPrice.textContent = (vehicule.price_per_day * duration).toFixed(2);
+    const vehicle = vehicules.find(v => v.id == selectedRadio.value);
+    priceDisplay.textContent = `${vehicle.price_per_day} € / jour`;
+    durationDisplay.textContent = `${duration} ${duration > 1 ? 'jours' : 'jour'}`;
+    totalDisplay.textContent = (vehicle.price_per_day * duration).toFixed(2);
 }
 
-// Attacher les écouteurs d'événements à tous les boutons radio
-vehicleRadios.forEach(radio => {
-    radio.addEventListener('change', updatePrice);
-});
-
-// Écouteur d'événement pour la durée
-rentalDurationSelect.addEventListener('change', updatePrice);
-
-// Mise à jour initiale si valeurs déjà sélectionnées (ex: après erreur)
-document.addEventListener('DOMContentLoaded', function() {
-    updatePrice();
-});
+radios.forEach(r => r.addEventListener('change', updatePrice));
+durationSelect.addEventListener('change', updatePrice);
+document.addEventListener('DOMContentLoaded', updatePrice);
 </script>
-
 </body>
 </html>

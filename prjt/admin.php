@@ -1,6 +1,9 @@
 <?php
 session_start();
-
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit;
+}
 // Connexion PDO
 $pdo = new PDO('mysql:host=localhost;dbname=carmotors;charset=utf8', 'root', '');
 

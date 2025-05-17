@@ -1,25 +1,19 @@
-<?php include 'db.php'; ?>
+<?php
+session_start();
+include 'db.php';
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>CARMOTORS</title>
+    <title>CARMOTORS - Nos Véhicules</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/vehicules.css">
 </head>
 <body>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CARMOTORS - Nos Véhicules</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/vehicules.css" rel="stylesheet">
-</head>
 
-</html>
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
@@ -35,6 +29,15 @@
                 <li class="nav-item"><a class="nav-link active" href="vehicules.php">Nos Véhicules</a></li>
                 <li class="nav-item"><a class="nav-link" href="reservation.php">Réservation</a></li>
                 <li class="nav-item"><a class="nav-link" href="contact.php">Contact</a></li>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="logout.php">Déconnexion</a>
+                    </li>
+                <?php else: ?>
+                    <li class="nav-item">
+                        <a class="nav-link text-success" href="login.php">Connexion</a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
     </div>
@@ -65,14 +68,14 @@
         <?php
         $stmt = $pdo->query("SELECT * FROM vehicules WHERE availability = 1");
         while ($vehicle = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            echo '<div class="col-md-4 mb-4 vehicle-item" data-category="' . $vehicle['category'] . '">
+            echo '<div class="col-md-4 mb-4 vehicle-item" data-category="' . htmlspecialchars($vehicle['category']) . '">
                     <div class="card h-100">
                         <img src="img/' . htmlspecialchars($vehicle['image_url']) . '" class="card-img-top" alt="' . htmlspecialchars($vehicle['model']) . '">
                         <div class="card-body">
                             <h5 class="card-title">' . htmlspecialchars($vehicle['model']) . '</h5>
                             <p class="card-text">Catégorie : ' . htmlspecialchars($vehicle['category']) . '</p>
-                            <p class="card-text">À partir de <strong>' . $vehicle['price_per_day'] . '€/jour</strong></p>
-                            <a href="reservation.php?id=' . $vehicle['id'] . '" class="btn btn-dark">Réserver</a>
+                            <p class="card-text">À partir de <strong>' . htmlspecialchars($vehicle['price_per_day']) . '€/jour</strong></p>
+                            <a href="reservation.php?id=' . urlencode($vehicle['id']) . '" class="btn btn-dark">Réserver</a>
                         </div>
                     </div>
                 </div>';
@@ -90,7 +93,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 <script>
-    // Filter script
+    // Filtrage des véhicules
     const filterButtons = document.querySelectorAll('.filter-btn');
     const vehicles = document.querySelectorAll('.vehicle-item');
 

@@ -1,9 +1,11 @@
 <?php
+session_start();
 $page_title = "Accueil";
 $css_file = "index";
 $js_file = "index";
+$current_page = basename($_SERVER['PHP_SELF']);
 
-// Sample dynamic content
+// Exemple de véhicules à afficher
 $featured_vehicles = [
     [
         'image' => 'img/clio.png',
@@ -23,17 +25,19 @@ $featured_vehicles = [
 ];
 ?>
 
-<!-- Navigation -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CARMOTORS - Accueil</title>
+  <title>CARMOTORS - <?= $page_title ?></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="assets/css/index.css" rel="stylesheet">
+  <link href="assets/css/<?= $css_file ?>.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
-</html>
+<body>
+
+<!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
     <a class="navbar-brand" href="index.php">
@@ -47,17 +51,27 @@ $featured_vehicles = [
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav fs-5">
         <li class="nav-item">
-          <a class="nav-link <?php echo ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">Accueil</a>
+          <a class="nav-link <?= ($current_page == 'index.php') ? 'active' : ''; ?>" href="index.php">Accueil</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="vehicules.php">Nos Véhicules</a>
+          <a class="nav-link <?= ($current_page == 'vehicules.php') ? 'active' : ''; ?>" href="vehicules.php">Nos Véhicules</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="reservation.php">Réservation</a>
+          <a class="nav-link <?= ($current_page == 'reservation.php') ? 'active' : ''; ?>" href="reservation.php">Réservation</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="contact.php">Contact</a>
+          <a class="nav-link <?= ($current_page == 'contact.php') ? 'active' : ''; ?>" href="contact.php">Contact</a>
         </li>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+          <li class="nav-item">
+            <a class="nav-link text-danger" href="logout.php">Déconnexion</a>
+          </li>
+        <?php else: ?>
+          <li class="nav-item">
+            <a class="nav-link text-success" href="login.php">Connexion</a>
+          </li>
+        <?php endif; ?>
       </ul>
     </div>
   </div>
@@ -103,10 +117,10 @@ $featured_vehicles = [
     <?php foreach ($featured_vehicles as $vehicle): ?>
     <div class="col-md-4 mb-4">
       <div class="card vehicle-preview-card text-center">
-        <img src="<?php echo $vehicle['image']; ?>" alt="<?php echo $vehicle['name']; ?>" class="card-img-top">
+        <img src="<?= $vehicle['image']; ?>" alt="<?= $vehicle['name']; ?>" class="card-img-top">
         <div class="card-body">
-          <h3 class="card-title"><?php echo $vehicle['name']; ?></h3>
-          <p class="card-text"><?php echo $vehicle['description']; ?></p>
+          <h3 class="card-title"><?= $vehicle['name']; ?></h3>
+          <p class="card-text"><?= $vehicle['description']; ?></p>
           <a href="reservation.php" class="btn btn-dark">Réserver</a>
         </div>
       </div>
@@ -116,3 +130,7 @@ $featured_vehicles = [
 </div>
 
 <?php include 'footer.php'; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

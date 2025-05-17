@@ -37,21 +37,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Insert user into the database if no errors
     if (empty($errors)) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'user')");
-        $success = $stmt->execute([
-            $firstName . ' ' . $lastName, // Combine first and last name for username
-            $hashedPassword,
-            $email
-        ]);
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        if ($success) {
-            header('Location: login.php');
-            exit;
-        } else {
-            $errors[] = "Erreur lors de la création du compte.";
-        }
+    $stmt = $pdo->prepare("INSERT INTO users (username, password, email, phone, role) VALUES (?, ?, ?, ?, 'user')");
+    $success = $stmt->execute([
+        $firstName . ' ' . $lastName, // username
+        $hashedPassword,              // password
+        $email,                       // email
+        $phone                        // phone
+    ]);
+
+    if ($success) {
+        header('Location: login.php');
+        exit;
+    } else {
+        $errors[] = "Erreur lors de la création du compte.";
     }
+}
+
 }
 ?>
 <!DOCTYPE html>

@@ -2,14 +2,8 @@
 require_once 'config.php';
 session_start(); // Start the session
 
-include 'header.php'; 
-
-// Display error message if exists
-if (isset($_GET['error'])) {
-    echo '<div class="alert alert-danger">Identifiants incorrects</div>';
-}
-
 // Handle login form submission
+$loginError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
@@ -26,16 +20,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['username'] = $user['username'];
         $_SESSION['role'] = $user['role'];
 
-        // Redirect to the main page
-        header('Location: index.php');
-        exit;
+        //  Redirection selon le rôle
+        if ($user['role'] === 'admin') {
+            header("Location: admin.php");
+            exit;
+        } else {
+            header("Location: index.php"); // ou accueil normal
+            exit;
+        }
     } else {
-        // Redirect to login page with error
-        header('Location: login.php?error=1');
-        exit;
+        $loginError = "Email ou mot de passe incorrect.";
     }
 }
+
+include 'header.php'; 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,6 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <p class="text-muted">Accédez à votre espace client CARMOTORS</p>
   </div>
   
+  <?php if (!empty($loginError)): ?>
+    <div class="alert alert-danger text-center"><?php echo htmlspecialchars($loginError); ?></div>
+  <?php endif; ?>
+  <?php if (isset($_GET['logout']) && $_GET['logout'] == 1): ?>
+    <div class="alert alert-success text-center" role="alert">
+        Vous avez été déconnecté avec succès.
+    </div>
+  <?php endif; ?>
+
   <form id="loginForm" action="" method="post">
     <div class="mb-3">
       <label for="email" class="form-label">Email</label>
@@ -132,5 +141,6 @@ document.getElementById('showPassword').addEventListener('click', function() {
         icon.classList.add('fa-eye');
     }
 });
+
 </script>
 </html>
