@@ -21,5 +21,5 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const password = document.getElementById('password').value;
     
     console.log('Login attempt:', { email, password });
-    window.location.href = 'index.html'; // Redirect to the main page after login
+    window.location.href = 'index.php'; // Redirect to the main page after login
 });
