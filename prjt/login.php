@@ -1,11 +1,39 @@
 <?php 
 require_once 'config.php';
+session_start(); // Start the session
 
 include 'header.php'; 
 
 // Display error message if exists
 if (isset($_GET['error'])) {
     echo '<div class="alert alert-danger">Identifiants incorrects</div>';
+}
+
+// Handle login form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email']);
+    $password = $_POST['password'];
+
+    // Prepare and execute the SQL statement
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Verify password
+    if ($user && password_verify($password, $user['password'])) {
+        // Store user information in session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['role'] = $user['role'];
+
+        // Redirect to the main page
+        header('Location: index.php');
+        exit;
+    } else {
+        // Redirect to login page with error
+        header('Location: login.php?error=1');
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -28,7 +56,7 @@ if (isset($_GET['error'])) {
     <p class="text-muted">Accédez à votre espace client CARMOTORS</p>
   </div>
   
-  <form id="loginForm" action="process_login.php" method="post">
+  <form id="loginForm" action="" method="post">
     <div class="mb-3">
       <label for="email" class="form-label">Email</label>
       <div class="input-group">
@@ -103,17 +131,6 @@ document.getElementById('showPassword').addEventListener('click', function() {
         icon.classList.remove('fa-eye-slash');
         icon.classList.add('fa-eye');
     }
-});
-
-// Form submission handler
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    // Remove this JS handler if you want the form to submit normally to process_login.php
-    // e.preventDefault();
-    // const email = document.getElementById('email').value;
-    // const password = document.getElementById('password').value;
-    
-    // console.log('Login attempt:', { email, password });
-    // window.location.href = 'index.php'; // Redirect to the main page after login
 });
 </script>
 </html>

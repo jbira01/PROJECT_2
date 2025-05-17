@@ -28,3 +28,11 @@ INSERT INTO vehicules (make, model, year, image_url, category, price_per_day, av
 ('BMW', 'M3', 2024, 'bmw.png', 'luxe', 120.00, 1),
 ('Mercedes', 'Classe C', 2024, 'mercedes.png', 'luxe', 115.00, 1),
 ('Peugeot', '308', 2024, 'peugeot.png', 'luxe', 130.00, 1);
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'user') DEFAULT 'user'
+);

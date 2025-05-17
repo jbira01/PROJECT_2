@@ -1,8 +1,58 @@
 <?php 
 require_once 'config.php';
+session_start(); // Start the session
+
 $css_file = "signup";
 $js_file = "signup";
 include 'header.php'; 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $firstName = trim($_POST['firstName']);
+    $lastName = trim($_POST['lastName']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
+    $password = $_POST['password'];
+    $confirmPassword = $_POST['confirmPassword'];
+    $agreeTerms = isset($_POST['agreeTerms']);
+
+    $errors = [];
+    if (empty($firstName) || empty($lastName) || empty($email) || empty($password) || empty($confirmPassword)) {
+        $errors[] = "Tous les champs sont obligatoires.";
+    }
+    if ($password !== $confirmPassword) {
+        $errors[] = "Les mots de passe ne correspondent pas.";
+    }
+    if (!$agreeTerms) {
+        $errors[] = "Vous devez accepter les conditions.";
+    }
+
+    // Check if email already exists
+    if (empty($errors)) {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetch()) {
+            $errors[] = "L'email est déjà utilisé.";
+        }
+    }
+
+    // Insert user into the database if no errors
+    if (empty($errors)) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'user')");
+        $success = $stmt->execute([
+            $firstName . ' ' . $lastName, // Combine first and last name for username
+            $hashedPassword,
+            $email
+        ]);
+
+        if ($success) {
+            header('Location: login.php');
+            exit;
+        } else {
+            $errors[] = "Erreur lors de la création du compte.";
+        }
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,7 +71,17 @@ include 'header.php';
     <h2 class="mt-2">Créer un compte</h2>
   </div>
 
-  <form id="signupForm" action="process_signup.php" method="post">
+  <?php if (!empty($errors)): ?>
+    <div class="alert alert-danger">
+      <ul>
+        <?php foreach ($errors as $error): ?>
+          <li><?= htmlspecialchars($error) ?></li>
+        <?php endforeach; ?>
+      </ul>
+    </div>
+  <?php endif; ?>
+
+  <form id="signupForm" action="" method="post">
     <div class="mb-3">
       <label class="form-label">Prénom</label>
       <input type="text" class="form-control" name="firstName" required />
@@ -74,7 +134,7 @@ include 'header.php';
   </form>
 </div>
 <script>
-      // Password visibility toggle and validation
+    // Password visibility toggle and validation
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirmPassword');
     const togglePassword = document.getElementById('togglePassword');
@@ -114,13 +174,6 @@ include 'header.php';
       matchMsg.textContent = match ? "✓ Les mots de passe correspondent" : "❌ Les mots de passe ne correspondent pas";
       matchMsg.className = match ? "form-text text-success" : "form-text text-danger";
     }
-
-    document.getElementById('signupForm').addEventListener('submit', (e) => {
-      e.preventDefault(); // Prevent form submission
-      if (password.value !== confirmPassword.value) return alert("Les mots de passe ne correspondent pas.");
-      if (!document.getElementById('agreeTerms').checked) return alert("Veuillez accepter les conditions.");
-      window.location.href = 'login.php'; // Redirect to the main page after login
-    });
 </script>
 </body>
 </html>
