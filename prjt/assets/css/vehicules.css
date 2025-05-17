@@ -1,0 +1,40 @@
+/* Custom styles for vehicle page */
+.vehicle-preview-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vehicle-preview-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+
+.price {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #343a40;
+    margin-bottom: 15px;
+}
+
+.btn-group .btn {
+    padding: 8px 20px;
+    margin: 0 5px;
+}
+
+.btn-group .btn.active {
+    background-color: #212529;
+    border-color: #212529;
+    font-weight: bold;
+}
+
+.vehicle-preview-card .badge {
+    font-size: 0.8rem;
+}
+
+/* Navigation active link */
+.navbar-nav .nav-link:hover {
+    text-decoration: underline;
+}

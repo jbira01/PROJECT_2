@@ -1,0 +1,16 @@
+/* Custom styles to complement Bootstrap */
+.service-card:hover, .vehicle-preview-card:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.hero {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../../img/hero.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+.navbar-nav .nav-link:hover {
+    text-decoration: underline;
+}

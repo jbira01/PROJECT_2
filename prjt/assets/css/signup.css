@@ -1,0 +1,38 @@
+body {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('../../img/hero.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-card {
+  background: rgba(175, 168, 168, 0.9);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.form-control:focus {
+  border-color: #000;
+  box-shadow: none;
+}
+
+.password-requirements {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.password-requirements .valid {
+  color: #198754;
+}
+
+.password-requirements .invalid {
+  color: #dc3545;
+}
