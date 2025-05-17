@@ -18,6 +18,7 @@ try {
         ]
     );
 } catch (PDOException $e) {
-    // En cas d’erreur de connexion, afficher un message et arrêter le script
     die("Erreur de connexion à la base de données : " . $e->getMessage());
 }
+
+define('SITE_NAME', 'CARMOTORS');
