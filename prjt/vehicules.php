@@ -75,7 +75,7 @@
                             <a href="reservation.php?id=' . $vehicle['id'] . '" class="btn btn-dark">Réserver</a>
                         </div>
                     </div>
-                  </div>';
+                </div>';
         }
         ?>
     </div>

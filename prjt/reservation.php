@@ -143,8 +143,8 @@ $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="col-md-6">
                                 <label class="form-label">Date de Début</label>
                                 <input type="date" id="startDate" name="startDate" class="form-control" 
-                                       value="<?= htmlspecialchars($_POST['startDate'] ?? '') ?>" 
-                                       min="<?= date('Y-m-d') ?>" required>
+                                        value="<?= htmlspecialchars($_POST['startDate'] ?? '') ?>" 
+                                        min="<?= date('Y-m-d') ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Durée</label>
@@ -163,13 +163,13 @@ $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php foreach ($vehicles as $v): ?>
                                 <div class="col-md-4">
                                     <div class="card">
-                                        <img src="img/<?= htmlspecialchars($v['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($v['name']) ?>">
+                                        <img src="<?= htmlspecialchars($v['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($v['name']) ?>">
                                         <div class="card-body">
                                             <h5 class="card-title"><?= htmlspecialchars($v['name']) ?></h5>
                                             <p class="card-text"><?= htmlspecialchars($v['price_per_day']) ?> € / jour</p>
                                             <input type="radio" name="vehicle" value="<?= htmlspecialchars($v['id']) ?>" 
-                                                   class="vehicle-radio" 
-                                                   <?= (($_POST['vehicle'] ?? '') == $v['id']) ? 'checked' : '' ?> required>
+                                                class="vehicle-radio" 
+                                                <?= (($_POST['vehicle'] ?? '') == $v['id']) ? 'checked' : '' ?> required>
                                         </div>
                                     </div>
                                 </div>
