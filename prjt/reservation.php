@@ -1,5 +1,5 @@
 <?php
-// Connexion à la BDD (à adapter avec vos infos)
+// Connexion à la BDD
 $host = 'localhost';
 $dbname = 'carmotors';
 $user = 'root';
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pickupLocation = $_POST['pickupLocation'] ?? '';
     $startDate = $_POST['startDate'] ?? '';
     $rentalDuration = (int)($_POST['rentalDuration'] ?? 0);
-    $vehicleId = (int)($_POST['vehicle'] ?? 0);
+    $vehiculeId = (int)($_POST['vehicle'] ?? 0);
     $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
     $phone = trim($_POST['phone'] ?? '');
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$pickupLocation) $errors[] = "Le lieu de retrait est obligatoire.";
     if (!$startDate) $errors[] = "La date de début est obligatoire.";
     if ($rentalDuration <= 0) $errors[] = "La durée de location est obligatoire.";
-    if ($vehicleId <= 0) $errors[] = "Vous devez sélectionner un véhicule.";
+    if ($vehiculeId <= 0) $errors[] = "Vous devez sélectionner un véhicule.";
     if (!$email) $errors[] = "Email invalide.";
     if (!$phone) $errors[] = "Le téléphone est obligatoire.";
     
@@ -39,29 +39,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Vérifier que le véhicule existe
-    $stmt = $pdo->prepare("SELECT * FROM vehicles WHERE id = ?");
-    $stmt->execute([$vehicleId]);
-    $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$vehicle) $errors[] = "Véhicule sélectionné invalide.";
+    $stmt = $pdo->prepare("SELECT * FROM vehicules WHERE id = ?");
+    $stmt->execute([$vehiculeId]);
+    $vehicule = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$vehicule) $errors[] = "Véhicule sélectionné invalide.";
 
     // Si pas d'erreur, insertion en base
     if (empty($errors)) {
         $stmt = $pdo->prepare("INSERT INTO reservations 
-            (pickup_location, start_date, rental_duration, vehicle_id, email, phone) 
+            (pickup_location, start_date, rental_duration, vehicule_id, email, phone) 
             VALUES (?, ?, ?, ?, ?, ?)");
         $success = $stmt->execute([
             $pickupLocation,
             $startDate,
             $rentalDuration,
-            $vehicleId,
+            $vehiculeId,
             $email,
             $phone
         ]);
 
         if ($success) {
             $message = "Réservation confirmée avec succès !";
-            // Reset post data pour vider le formulaire
-            $_POST = [];
+            $_POST = []; // Reset post data
         } else {
             $errors[] = "Erreur lors de l'enregistrement de la réservation.";
         }
@@ -69,15 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Récupérer les véhicules pour affichage dynamique
-$stmt = $pdo->query("SELECT * FROM vehicles");
-$vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Débogage: Afficher la structure d'un véhicule pour comprendre les noms des colonnes
-// if (!empty($vehicles)) {
-//     echo '<pre>';
-//     print_r($vehicles[0]);
-//     echo '</pre>';
-// }
+$stmt = $pdo->query("SELECT * FROM vehicules");
+$vehicules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -143,8 +135,8 @@ $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="col-md-6">
                                 <label class="form-label">Date de Début</label>
                                 <input type="date" id="startDate" name="startDate" class="form-control" 
-                                       value="<?= htmlspecialchars($_POST['startDate'] ?? '') ?>" 
-                                       min="<?= date('Y-m-d') ?>" required>
+                                        value="<?= htmlspecialchars($_POST['startDate'] ?? '') ?>" 
+                                        min="<?= date('Y-m-d') ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Durée</label>
@@ -160,16 +152,16 @@ $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <h3 class="mb-3">Sélectionnez votre véhicule</h3>
                         <div class="row g-3 mb-4" id="vehicleSelection">
-                            <?php foreach ($vehicles as $v): ?>
+                            <?php foreach ($vehicules as $v): ?>
                                 <div class="col-md-4">
                                     <div class="card">
-                                        <img src="img/<?= htmlspecialchars($v['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($v['name']) ?>">
+                                        <img src="img/<?= htmlspecialchars($v['image_url']) ?>" class="card-img-top" alt="<?= htmlspecialchars($v['make'] . ' ' . $v['model']) ?>">
                                         <div class="card-body">
-                                            <h5 class="card-title"><?= htmlspecialchars($v['name']) ?></h5>
+                                            <h5 class="card-title"><?= htmlspecialchars($v['make'] . ' ' . $v['model']) ?></h5>
                                             <p class="card-text"><?= htmlspecialchars($v['price_per_day']) ?> € / jour</p>
                                             <input type="radio" name="vehicle" value="<?= htmlspecialchars($v['id']) ?>" 
-                                                   class="vehicle-radio" 
-                                                   <?= (($_POST['vehicle'] ?? '') == $v['id']) ? 'checked' : '' ?> required>
+                                                class="vehicle-radio" 
+                                                <?= (($_POST['vehicle'] ?? '') == $v['id']) ? 'checked' : '' ?> required>
                                         </div>
                                     </div>
                                 </div>
@@ -223,7 +215,7 @@ $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
 // JS pour mettre à jour le récapitulatif du prix en live
-const vehicles = <?= json_encode($vehicles) ?>;
+const vehicules = <?= json_encode($vehicules) ?>;
 const vehicleRadios = document.querySelectorAll('.vehicle-radio');
 const rentalDurationSelect = document.getElementById('rentalDuration');
 const selectedVehiclePrice = document.getElementById('selectedVehiclePrice');
@@ -241,12 +233,12 @@ function updatePrice() {
         return;
     }
 
-    const vehicle = vehicles.find(v => v.id == selectedVehicle.value);
-    if (!vehicle) return;
+    const vehicule = vehicules.find(v => v.id == selectedVehicle.value);
+    if (!vehicule) return;
 
-    selectedVehiclePrice.textContent = vehicle.price_per_day + ' € / jour';
+    selectedVehiclePrice.textContent = vehicule.price_per_day + ' € / jour';
     rentalDurationDisplay.textContent = duration + (duration === 1 ? ' jour' : ' jours');
-    totalPrice.textContent = (vehicle.price_per_day * duration).toFixed(2);
+    totalPrice.textContent = (vehicule.price_per_day * duration).toFixed(2);
 }
 
 // Attacher les écouteurs d'événements à tous les boutons radio
