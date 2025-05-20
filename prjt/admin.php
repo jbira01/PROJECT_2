@@ -95,7 +95,7 @@ $vehicules = $pdo->query("SELECT id, make, model, year FROM vehicules ORDER BY m
                 <td><?= htmlspecialchars($res['make'] . ' ' . $res['model'] . ' (' . $res['year'] . ')') ?></td>
                 <td>
                     <?php if ($res['image_url']): ?>
-                        <img src="<?= htmlspecialchars($res['image_url']) ?>" alt="Image véhicule" class="vehicle-img">
+                        <img src="<?php echo "img/" . $res['image_url'] ?>" alt="Image véhicule" class="vehicle-img">
                     <?php else: ?> -
                     <?php endif; ?>
                 </td>
