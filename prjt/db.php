@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
-$dbname = 'carmotors'; // Replace with your actual DB name
-$username = 'root';             // Default for XAMPP is 'root'
-$password = '';                 // Default is empty for root
+$dbname = 'carmotors'; 
+$username = 'root';            
+$password = '';    
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);

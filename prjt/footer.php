@@ -1,5 +1,5 @@
 <footer class="bg-dark text-white text-center py-3 mt-5">
-  <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?> - Tous droits réservés.</p>
+  <p class="mb-0">&copy; <?php echo date('Y'); ?> <?php echo "CARMOTORS"; ?> - Tous droits réservés.</p>
 </footer>
 
 <!-- Bootstrap JS Bundle with Popper -->

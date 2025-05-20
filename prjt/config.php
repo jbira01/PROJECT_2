@@ -1,10 +1,10 @@
 <?php
-// config.php
 
-$host = 'localhost';           // Adresse du serveur MySQL
-$dbname = 'carmotors';    // Nom de ta base de données
-$user = 'root';     // Ton utilisateur MySQL
-$password = ''; // Le mot de passe MySQL
+
+$host = 'localhost';         
+$dbname = 'carmotors';
+$user = 'root';
+$password = '';
 
 try {
     $pdo = new PDO(
