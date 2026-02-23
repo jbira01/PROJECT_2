@@ -1,9 +1,3 @@
-Excellent 👌 — I’ll refine it into a **clean, high-level, professional GitHub-ready version** (stronger wording, better structure, consistent tone across your projects).
-
-You can replace your current README with this optimized version:
-
----
-
 # 🚗 PROJECT_2 – Car Rental Management System
 
 ![PHP](https://img.shields.io/badge/PHP-8.x-blue?logo=php)
@@ -174,10 +168,3 @@ Full-Stack Developer
 
 ---
 
-Now your three projects form a clean progression:
-
-* PROJET_1 → Front-End Prototype
-* PROJECT_2 → Full-Stack Web Application
-* PROJECT_3 → Desktop Application (Python GUI)
-
-If you want, I can now create a **main portfolio README** that links all three projects together professionally. 🚀
