@@ -26,11 +26,6 @@
 ![Forks](https://img.shields.io/github/forks/jbira01/PROJECT_2?style=for-the-badge)
 ![Watchers](https://img.shields.io/github/watchers/jbira01/PROJECT_2?style=for-the-badge)
 
-🔥 Optional Portfolio Card (Very Clean)
-
-![GitHub Repo Stats](https://github-readme-stats.vercel.app/api/pin/?username=jbira01&repo=PROJECT_2&theme=dark)
-
-
 ⸻
 
 📖 Overview
